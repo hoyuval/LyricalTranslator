@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Poetry &amp; Song Translation Studio</title>
     
     <!-- Tailwind CSS -->
@@ -28,11 +28,18 @@
         .has-comment {
             border-bottom: 2px dotted #3b82f6;
         }
+        /* Mobile touch optimization */
+        .touch-pan-y {
+            touch-action: pan-y;
+        }
+        .touch-pan-x {
+            touch-action: pan-x;
+        }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 h-screen flex flex-col font-sans overflow-hidden">
+<body class="bg-gray-50 text-gray-800 h-[100dvh] w-full m-0 p-0 flex flex-col font-sans overflow-hidden">
     
-    <div id="root"></div>
+    <div id="root" class="flex-1 flex flex-col overflow-hidden w-full h-full max-w-full"></div>
 
     <script type="text/babel">
         const { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } = React;
@@ -419,7 +426,6 @@
             const exportAllDrafts = () => {
                 const lines = segments.map(seg => {
                     if (seg.isBlank) return "";
-                    // Collect all non-empty drafts for this segment
                     const draftTexts = seg.translations
                         .map(t => t.text)
                         .filter(txt => txt && txt.trim().length > 0);
@@ -483,13 +489,13 @@
 
             if (appMode === 'setup') {
                 return (
-                    <div className="flex-1 flex flex-col items-center justify-center p-8 bg-gray-50 overflow-y-auto">
-                        <div className="max-w-2xl w-full bg-white p-8 rounded-xl shadow-lg border border-gray-100 my-auto">
-                            <h1 className="text-3xl font-bold mb-6 text-gray-800 flex items-center gap-3">
+                    <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 bg-gray-50 overflow-y-auto">
+                        <div className="max-w-2xl w-full bg-white p-6 md:p-8 rounded-xl shadow-lg border border-gray-100 my-auto">
+                            <h1 className="text-2xl md:text-3xl font-bold mb-6 text-gray-800 flex items-center gap-3">
                                 <span className="text-blue-500 font-serif italic text-4xl">L</span>
                                 Lyrical Translator
                             </h1>
-                            <p className="text-gray-600 mb-4">Paste your source poem or song lyrics below.</p>
+                            <p className="text-gray-600 mb-4 text-sm md:text-base">Paste your source poem or song lyrics below.</p>
                             <textarea 
                                 className="w-full h-64 p-4 border rounded-lg mb-6 focus:ring-2 focus:ring-blue-400 focus:border-transparent resize-none font-serif text-lg"
                                 value={rawText}
@@ -498,17 +504,17 @@
                             
                             <input type="file" accept=".json" ref={fileInputRef} onChange={handleImportJSON} className="hidden" />
                             
-                            <div className="flex justify-between items-center">
+                            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                                 <button 
                                     onClick={() => fileInputRef.current.click()}
-                                    className="text-emerald-600 font-medium py-3 px-6 rounded-lg hover:bg-emerald-50 transition-colors border border-emerald-200"
+                                    className="w-full sm:w-auto text-emerald-600 font-medium py-3 px-6 rounded-lg hover:bg-emerald-50 transition-colors border border-emerald-200"
                                 >
                                     Import Project (.json)
                                 </button>
                                 <button 
                                     onClick={handleStart}
                                     disabled={!rawText.trim()}
-                                    className="bg-blue-600 disabled:bg-gray-400 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors shadow-md"
+                                    className="w-full sm:w-auto bg-blue-600 disabled:bg-gray-400 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors shadow-md"
                                 >
                                     Start Translating
                                 </button>
@@ -520,25 +526,25 @@
 
             return (
                 <div className="flex-1 flex flex-col h-full overflow-hidden relative">
-                    <header className="bg-white border-b px-6 py-4 flex flex-wrap justify-between items-center shrink-0 shadow-sm z-10 gap-4">
+                    <header className="bg-white border-b px-3 md:px-6 py-3 md:py-4 flex flex-col sm:flex-row flex-wrap justify-between items-center shrink-0 shadow-sm z-30 gap-3 md:gap-4">
                         <input 
                             type="text" 
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            className="text-xl font-bold bg-transparent border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none transition-colors"
+                            className="text-lg md:text-xl font-bold bg-transparent border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none transition-colors w-full sm:w-auto text-center sm:text-left"
                         />
                         
-                        <div className="flex bg-gray-100 p-1 rounded-lg">
+                        <div className="flex bg-gray-100 p-1 rounded-lg w-full sm:w-auto justify-center">
                             <button onClick={() => setAppMode('annotate')} className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${appMode === 'annotate' ? 'bg-white shadow text-indigo-600' : 'text-gray-600 hover:text-gray-900'}`}>Annotate</button>
                             <button onClick={() => setAppMode('translate')} className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${appMode === 'translate' ? 'bg-white shadow text-blue-600' : 'text-gray-600 hover:text-gray-900'}`}>Translate</button>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                            <button onClick={analyzeAll} className="px-3 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-md text-sm font-medium border border-indigo-200">Auto-Analyze Rhymes</button>
-                            <div className="h-6 w-px bg-gray-300 mx-1"></div>
+                        <div className="flex flex-wrap items-center justify-center gap-2 w-full sm:w-auto">
+                            <button onClick={analyzeAll} className="px-3 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-md text-sm font-medium border border-indigo-200">Auto-Analyze</button>
+                            <div className="hidden sm:block h-6 w-px bg-gray-300 mx-1"></div>
                             
                             <input type="file" accept=".json" ref={fileInputRef} onChange={handleImportJSON} className="hidden" />
-                            <button onClick={() => fileInputRef.current.click()} className="px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-md text-sm font-medium border border-emerald-200">Import JSON</button>
+                            <button onClick={() => fileInputRef.current.click()} className="px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-md text-sm font-medium border border-emerald-200">Import</button>
                             
                             <div className="relative">
                                 <button onClick={() => setShowExportMenu(!showExportMenu)} className="px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-md text-sm font-medium border border-emerald-200">
@@ -556,13 +562,13 @@
                                 )}
                             </div>
 
-                            <div className="h-6 w-px bg-gray-300 mx-1"></div>
-                            <button onClick={() => setShowResetModal(true)} className="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-md text-sm font-medium border border-red-200">Reset App</button>
+                            <div className="hidden sm:block h-6 w-px bg-gray-300 mx-1"></div>
+                            <button onClick={() => setShowResetModal(true)} className="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-md text-sm font-medium border border-red-200">Reset</button>
                         </div>
                     </header>
 
                     {errorMsg && (
-                        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+                        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
                             <div className="bg-white p-6 rounded-xl shadow-2xl max-w-sm w-full text-center border border-gray-200">
                                 <h2 className="text-xl font-bold mb-4 text-red-600">Import Error</h2>
                                 <p className="text-gray-600 mb-6 text-sm">{errorMsg}</p>
@@ -574,7 +580,7 @@
                     )}
 
                     {showResetModal && (
-                        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+                        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
                             <div className="bg-white p-6 rounded-xl shadow-2xl max-w-sm w-full text-center border border-gray-200">
                                 <h2 className="text-xl font-bold mb-4 text-gray-800">Reset Application?</h2>
                                 <p className="text-gray-600 mb-6 text-sm">This will permanently clear all current translation data and return to the setup screen. Are you sure?</p>
@@ -596,8 +602,9 @@
                         />
                     )}
 
-                    <div className="flex-1 overflow-auto bg-gray-100 p-6 relative">
-                        <div className="grid grid-cols-12 gap-6 min-w-[1000px] pb-32">
+                    {}
+                    <div className="flex-1 overflow-y-auto bg-gray-100 p-2 md:p-6 relative w-full touch-pan-y">
+                        <div className="flex flex-col gap-4 md:gap-6 w-full max-w-full pb-32">
                             {segments.map((segment, index) => (
                                 <SegmentRow 
                                     key={segment.id}
@@ -619,7 +626,7 @@
         };
 
         const SegmentRow = ({ segment, index, segments, setSegments, appMode, setActiveTokenPopup, focusedRhymeGroup, setFocusedRhymeGroup, tokenizeText }) => {
-            if (segment.isBlank) return <div className="col-span-12 h-6"></div>;
+            if (segment.isBlank) return <div className="w-full h-6"></div>;
 
             const updateSegment = (newSegment) => {
                 const newSegs = [...segments];
@@ -641,9 +648,9 @@
             };
 
             return (
-                <div className="col-span-12 relative group/row">
-                    <div className={`grid grid-cols-12 gap-6 bg-white p-4 rounded-xl shadow-sm border transition-colors ${appMode === 'annotate' ? 'border-indigo-300 ring-1 ring-indigo-100' : 'border-gray-200'}`}>
-                        <div className="col-span-4 border-r pr-4 text-lg font-serif leading-relaxed whitespace-pre-wrap break-words">
+                <div className="w-full relative group/row">
+                    <div className={`flex flex-col md:grid md:grid-cols-12 gap-4 md:gap-6 bg-white p-3 md:p-4 rounded-xl shadow-sm border transition-colors ${appMode === 'annotate' ? 'border-indigo-300 ring-1 ring-indigo-100' : 'border-gray-200'} w-full`}>
+                        <div className="md:col-span-4 border-b md:border-b-0 md:border-r pb-3 md:pb-0 md:pr-4 text-base md:text-lg font-serif leading-relaxed whitespace-pre-wrap break-words w-full">
                             {segment.tokens.map(token => (
                                 <Token 
                                     key={token.id} token={token} segmentId={segment.id} type="source" appMode={appMode}
@@ -651,7 +658,7 @@
                                 />
                             ))}
                         </div>
-                        <div className="col-span-6 flex gap-4 overflow-x-auto hide-scrollbar snap-x pb-2">
+                        <div className="md:col-span-6 flex gap-4 overflow-x-auto hide-scrollbar snap-x pb-2 pt-2 md:pt-0 touch-pan-x w-full">
                             {segment.translations.map((trans, tIndex) => (
                                 <TranslationCard 
                                     key={trans.id} segmentId={segment.id} trans={trans} index={tIndex} total={segment.translations.length}
@@ -665,12 +672,12 @@
                                 </div>
                             )}
                         </div>
-                        <div className="col-span-2">
+                        <div className="md:col-span-2 mt-2 md:mt-0 w-full">
                             <textarea
                                 value={segment.notes}
                                 onChange={(e) => updateSegment({...segment, notes: e.target.value})}
                                 placeholder="Notes..."
-                                className="w-full h-full min-h-[80px] p-2 text-sm bg-gray-50 border-gray-200 rounded resize-none focus:ring-1 focus:ring-blue-400 focus:bg-white transition-colors"
+                                className="w-full h-full min-h-[60px] md:min-h-[80px] p-2 text-sm bg-gray-50 border-gray-200 rounded resize-none focus:ring-1 focus:ring-blue-400 focus:bg-white transition-colors"
                             ></textarea>
                         </div>
                     </div>
@@ -708,7 +715,7 @@
             }, [trans.tokens, caretPos, revision]);
 
             return (
-                <div className={`flex-shrink-0 w-64 snap-center flex flex-col border-2 rounded-lg relative transition-colors ${STATUS_COLORS[trans.status]} ${appMode === 'annotate' ? 'ring-2 ring-indigo-300 border-indigo-400' : ''}`}>
+                <div className={`flex-shrink-0 w-[85vw] md:w-64 snap-center flex flex-col border-2 rounded-lg relative transition-colors ${STATUS_COLORS[trans.status]} ${appMode === 'annotate' ? 'ring-2 ring-indigo-300 border-indigo-400' : ''}`}>
                     <div className="flex justify-between items-center px-2 py-1 border-b border-inherit bg-white/50 rounded-t-md">
                         <span className="text-xs font-semibold text-gray-700">Draft {index + 1}</span>
                         <button onClick={cycleStatus} className="text-[10px] w-5 h-5 rounded-full hover:bg-black/10">🚦</button>
@@ -926,7 +933,7 @@
             return (
                 <div 
                     ref={popoverRef}
-                    className="fixed bg-white text-gray-800 p-4 rounded-xl shadow-2xl border border-gray-200 z-50 w-72 transform -translate-x-1/2 transition-opacity duration-200 overflow-y-auto"
+                    className="fixed bg-white text-gray-800 p-4 rounded-xl shadow-2xl border border-gray-200 z-50 w-[90vw] max-w-[288px] transform -translate-x-1/2 transition-opacity duration-200 overflow-y-auto"
                     style={{ 
                         left: position.left, 
                         top: position.top, 
